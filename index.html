@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Majapahit Storybook</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts: Nunito & Cinzel (untuk kesan kerajaan) -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles & Animations -->
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            overscroll-behavior: none; /* Mencegah bounce effect pada mobile */
+        }
+
+        /* Font khusus judul kerajaan */
+        .font-royal {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Hide Scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animations */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+
+        .transition-content {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Utility untuk menyembunyikan elemen dengan transisi */
+        .hidden-view {
+            display: none;
+            opacity: 0;
+        }
+        .visible-view {
+            display: flex;
+            opacity: 1;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen bg-gray-900 flex items-center justify-center overflow-hidden sm:p-4">
+
+    <!-- Main Device Container -->
+    <div class="relative w-full h-full sm:max-w-sm sm:h-[90vh] bg-white sm:rounded-[2.5rem] shadow-[0_0_40px_rgba(0,0,0,0.5)] overflow-hidden sm:border-8 border-gray-800 flex flex-col">
+        
+        <!-- Top Bar -->
+        <div class="h-8 bg-gray-100 flex items-center justify-between px-6 shrink-0 z-50">
+            <div class="text-xs font-bold text-gray-500">12:00</div>
+            <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 flex flex-col relative bg-orange-50 overflow-hidden">
+            
+            <!-- Background Patterns (Global) -->
+            <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-orange-100 to-transparent opacity-50 z-0"></div>
+            <div class="absolute -right-20 top-20 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+            <div class="absolute -left-20 top-40 w-64 h-64 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+            <!-- === HALAMAN SAMPUL (COVER) === -->
+            <div id="cover-view" class="visible-view absolute inset-0 z-40 flex-col bg-gray-900">
+                <!-- Layer 1: Background Blur (Agar tidak ada space kosong hitam/putih) -->
+                <div class="absolute inset-0 z-0">
+                    <img id="cover-bg" src="" class="w-full h-full object-cover opacity-50 blur-xl scale-105" alt="Background">
+                </div>
+
+                <!-- Layer 2: Main Image (Full visible - tidak terpotong) -->
+                <div class="absolute inset-0 z-0 flex items-center justify-center p-0">
+                    <img id="cover-image" src="" class="w-full h-full object-contain z-10 drop-shadow-2xl" alt="Cover">
+                    <!-- Gradient overlay untuk teks agar terbaca -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-20"></div>
+                </div>
+
+                <!-- Cover Content -->
+                <div class="relative z-30 flex-1 flex flex-col items-center justify-end pb-20 px-6 text-center">
+                    <div class="mb-2 px-3 py-1 bg-yellow-500 text-black text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg">
+                        Interactive Story
+                    </div>
+                    <h1 class="font-royal text-5xl text-yellow-400 font-bold mb-2 drop-shadow-lg leading-tight">
+                        MAJAPAHIT
+                    </h1>
+                    <p class="text-white text-lg font-light mb-8 opacity-90 drop-shadow-md">
+                        Kisah Kejayaan Nusantara
+                    </p>
+                    
+                    <button onclick="startStory()" class="group relative w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 rounded-2xl shadow-xl shadow-orange-900/50 text-white font-bold text-xl overflow-hidden transition-transform active:scale-95 border border-orange-400/30">
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            Buka Buku <i data-lucide="book-open" class="w-5 h-5 group-hover:animate-bounce"></i>
+                        </span>
+                    </button>
+                    
+                    <p class="mt-6 text-[10px] text-gray-400 uppercase tracking-widest">Created By ARCH Media</p>
+                </div>
+            </div>
+
+            <!-- === HALAMAN CERITA (STORY) === -->
+            <div id="story-view" class="hidden-view flex-1 flex-col relative h-full z-10">
+                <!-- Header -->
+                <header class="relative z-10 px-6 pt-4 flex justify-between items-center shrink-0">
+                    <button onclick="showCover()" class="bg-white/80 backdrop-blur-md p-2 rounded-2xl shadow-sm border border-orange-100 active:scale-95 transition-transform">
+                        <i data-lucide="home" class="w-6 h-6 text-orange-600"></i>
+                    </button>
+                    <div class="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full shadow-sm border border-orange-100">
+                        <span class="text-xs font-bold text-orange-800 tracking-wider uppercase">Majapahit Series</span>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-md p-2 rounded-2xl shadow-sm border border-orange-100">
+                        <i data-lucide="music" class="w-6 h-6 text-orange-600"></i>
+                    </div>
+                </header>
+
+                <!-- Main Story Card (Layout Flexbox Penuh) -->
+                <main class="flex-1 flex flex-col px-6 pt-2 pb-0 overflow-hidden relative justify-between">
+                    
+                    <!-- Image Container (Flexible Height) -->
+                    <div id="image-container" class="transition-content w-full flex-1 min-h-0 rounded-3xl mb-2 relative overflow-hidden shadow-xl transform bg-gray-200 shrink-1">
+                        <img id="story-image" src="" alt="Story Visual" class="w-full h-full object-cover transition-transform duration-700 ease-out" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></div>
+                        
+                        <!-- Floating Badge -->
+                        <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
+                             <div class="flex items-center space-x-1">
+                                <i data-lucide="sparkles" class="w-3 h-3 text-yellow-300"></i>
+                                <span class="text-[10px] font-bold text-white uppercase tracking-wider">3D Visual</span>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Content (Fixed/Auto Height) -->
+                    <div id="text-container" class="transition-content shrink-0 mb-2">
+                        <h1 id="story-title" class="text-2xl font-extrabold text-gray-800 mb-2 leading-tight tracking-tight">
+                            Judul Cerita
+                        </h1>
+                        
+                        <div class="bg-white/60 backdrop-blur-sm p-3 rounded-2xl border border-white shadow-sm relative overflow-hidden">
+                            <div class="absolute -top-2 -left-2 text-orange-200 opacity-50">
+                                 <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.896 14.789 15.548 15.694 15.548C15.823 15.548 16.069 15.586 16.069 15.586C15.877 14.288 15.428 13.567 14.485 13.567C13.256 13.567 12.162 14.62 12.162 16.489L12.162 21L6 21L6 11.233C6 6.946 9.697 4 14.28 4L14.28 7.37C11.967 7.37 10.375 8.795 10.375 11.025L10.375 11.397C11.066 11.077 12.235 11.077 12.833 11.077C15.938 11.077 18 13.111 18 16.296L18 21L14.017 21Z"></path></svg>
+                            </div>
+                            <p id="story-text" class="text-gray-700 text-sm sm:text-base leading-relaxed font-medium relative z-10 line-clamp-5">
+                                Isi cerita...
+                            </p>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Progress Indicator -->
+                <div id="progress-container" class="px-8 py-1 z-10 flex justify-center space-x-2 shrink-0"></div>
+
+                <!-- Navigation Controls -->
+                <div class="px-6 pb-4 pt-2 z-10 flex justify-between items-center shrink-0">
+                    <button id="btn-prev" onclick="changePage(-1)" class="p-3 sm:p-4 rounded-full shadow-lg transition-transform active:scale-90 flex items-center justify-center border-b-4 border-orange-200 bg-white text-orange-600 hover:bg-orange-50">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+
+                    <button id="btn-next" onclick="changePage(1)" class="flex-1 ml-4 py-3 sm:py-4 rounded-2xl shadow-xl shadow-orange-500/20 font-bold text-lg transition-transform active:scale-95 flex items-center justify-center space-x-2 border-b-4 bg-gradient-to-r from-orange-500 to-red-500 text-white border-red-700">
+                        <span id="btn-next-text">Lanjut Baca</span>
+                        <i id="btn-next-icon" data-lucide="chevron-right" class="w-5 h-5 ml-2"></i>
+                    </button>
+                </div>
+                
+                <div class="pb-4 pt-0 text-center z-10 shrink-0">
+                    <p class="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
+                        Created By ARCH Media
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // ==========================================
+        // KONFIGURASI GAMBAR
+        // ==========================================
+        const images = {
+            // Updated cover image
+            cover: "https://i.imgur.com/KyPAgEM.jpg",
+            page1: "https://i.imgur.com/jxNEZeH.jpg",
+            page2: "https://i.imgur.com/i08cgYL.jpg",
+            page3: "https://i.imgur.com/Erx23K3.jpg",
+            page4: "https://i.imgur.com/LsJ1Jem.jpg",
+            page5: "https://i.imgur.com/uV5nBeM.jpg"
+        };
+        // ==========================================
+
+
+        // --- DATA ---
+        const storyData = [
+            {
+                id: 1,
+                title: "Bangkitnya Majapahit",
+                text: "Di sisa-sisa kejayaan Singhasari, Raden Wijaya membuka Hutan Tarik. Di sinilah buah Maja yang pahit menjadi saksi lahirnya sebuah imperium besar.",
+                imageUrl: images.page1, // Mengambil dari konfigurasi di atas
+                color: "from-emerald-400 to-green-600"
+            },
+            {
+                id: 2,
+                title: "Siasat Cerdik",
+                text: "Menghadapi pasukan Mongol yang kuat, Raden Wijaya menggunakan kecerdikannya. Ia mengubah ancaman menjadi sekutu, lalu memukul balik untuk merebut kemerdekaan!",
+                imageUrl: images.page2, 
+                color: "from-blue-400 to-indigo-600"
+            },
+            {
+                id: 3,
+                title: "Sumpah Palapa",
+                text: "Gajah Mada, sang Mahapatih yang gagah berani, mengangkat kerisnya. Ia bersumpah tidak akan memakan buah palapa (bersenang-senang) sebelum menyatukan Nusantara.",
+                imageUrl: images.page3,
+                color: "from-orange-500 to-red-600"
+            },
+            {
+                id: 4,
+                title: "Masa Keemasan",
+                text: "Di bawah Raja Hayam Wuruk, Majapahit mencapai puncak kejayaan. Candi-candi megah dibangun, perdagangan makmur, dan seni budaya berkembang pesat.",
+                imageUrl: images.page4,
+                color: "from-yellow-400 to-amber-600"
+            },
+            {
+                id: 5,
+                title: "Warisan Nusantara",
+                text: "Meski masa berlalu, semangat persatuan Majapahit tetap hidup. Bhinneka Tunggal Ika menjadi warisan abadi bagi Indonesia.",
+                imageUrl: images.page5,
+                color: "from-purple-400 to-pink-600"
+            }
+        ];
+
+        // --- STATE ---
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        // --- ELEMENTS ---
+        const els = {
+            coverView: document.getElementById('cover-view'),
+            storyView: document.getElementById('story-view'),
+            coverImage: document.getElementById('cover-image'),
+            coverBg: document.getElementById('cover-bg'), // Added for blurred background
+            
+            title: document.getElementById('story-title'),
+            text: document.getElementById('story-text'),
+            imageContainer: document.getElementById('image-container'),
+            storyImage: document.getElementById('story-image'),
+            textContainer: document.getElementById('text-container'),
+            progressContainer: document.getElementById('progress-container'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'),
+            btnNextText: document.getElementById('btn-next-text'),
+            btnNextIcon: document.getElementById('btn-next-icon'),
+        };
+
+        // --- INITIALIZATION ---
+        function init() {
+            // Set cover image & blurred background
+            els.coverImage.src = images.cover;
+            if(els.coverBg) els.coverBg.src = images.cover;
+            
+            // Render first story page (hidden initially)
+            renderStory();
+            lucide.createIcons();
+        }
+
+        // --- VIEW NAVIGATION ---
+        function startStory() {
+            // Animasi transisi dari Cover ke Story
+            els.coverView.style.opacity = '0';
+            setTimeout(() => {
+                els.coverView.classList.remove('visible-view');
+                els.coverView.classList.add('hidden-view');
+                
+                els.storyView.classList.remove('hidden-view');
+                els.storyView.classList.add('visible-view');
+                
+                // Reset index
+                currentIndex = 0;
+                renderStory();
+            }, 500);
+        }
+
+        function showCover() {
+            els.storyView.style.opacity = '0';
+            setTimeout(() => {
+                els.storyView.classList.remove('visible-view');
+                els.storyView.classList.add('hidden-view');
+                els.storyView.style.opacity = '1'; // Reset opacity for next entry
+
+                els.coverView.classList.remove('hidden-view');
+                els.coverView.classList.add('visible-view');
+            }, 500);
+        }
+
+        // --- STORY RENDERING ---
+        function renderStory() {
+            const story = storyData[currentIndex];
+
+            // 1. Text Content
+            els.title.innerText = story.title;
+            els.text.innerText = story.text;
+
+            // 2. Images
+            els.storyImage.src = story.imageUrl;
+            
+            // Effect: Slight zoom reset
+            els.storyImage.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                 els.storyImage.style.transform = 'scale(1)';
+            }, 50);
+
+            // 3. Navigation Buttons
+            if (currentIndex === 0) {
+                els.btnPrev.disabled = true;
+                els.btnPrev.className = "p-3 sm:p-4 rounded-full shadow-lg transition-transform flex items-center justify-center border-b-4 bg-gray-200 text-gray-400 cursor-not-allowed border-transparent";
+            } else {
+                els.btnPrev.disabled = false;
+                els.btnPrev.className = "p-3 sm:p-4 rounded-full shadow-lg transition-transform active:scale-90 flex items-center justify-center border-b-4 border-orange-200 bg-white text-orange-600 hover:bg-orange-50";
+            }
+
+            if (currentIndex === storyData.length - 1) {
+                els.btnNext.className = "flex-1 ml-4 py-3 sm:py-4 rounded-2xl shadow-xl shadow-orange-500/20 font-bold text-lg transition-transform active:scale-95 flex items-center justify-center space-x-2 border-b-4 bg-gray-800 text-white border-gray-900";
+                els.btnNextText.innerText = "Selesai";
+                els.btnNextIcon.style.display = 'none';
+            } else {
+                els.btnNext.className = "flex-1 ml-4 py-3 sm:py-4 rounded-2xl shadow-xl shadow-orange-500/20 font-bold text-lg transition-transform active:scale-95 flex items-center justify-center space-x-2 border-b-4 bg-gradient-to-r from-orange-500 to-red-500 text-white border-red-700";
+                els.btnNextText.innerText = "Lanjut Baca";
+                els.btnNextIcon.style.display = 'inline-block';
+            }
+
+            // 4. Progress Dots
+            els.progressContainer.innerHTML = storyData.map((_, idx) => `
+                <div class="h-2 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-8 bg-orange-500' : 'w-2 bg-orange-200'}"></div>
+            `).join('');
+
+            // Reset Animation Classes
+            els.imageContainer.classList.remove('scale-95', 'opacity-50');
+            els.textContainer.classList.remove('opacity-0', 'translate-y-10');
+            
+            lucide.createIcons();
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function changePage(direction) {
+            if (isAnimating) return;
+            
+            const newIndex = currentIndex + direction;
+            
+            // Jika user klik "Selesai" di akhir
+            if (newIndex >= storyData.length) {
+                showCover(); // Kembali ke sampul
+                return;
+            }
+            
+            if (newIndex < 0) return;
+
+            // Start Animation
+            isAnimating = true;
+            els.imageContainer.classList.add('scale-95', 'opacity-50');
+            els.textContainer.classList.add('opacity-0', 'translate-y-10');
+
+            setTimeout(() => {
+                currentIndex = newIndex;
+                renderStory();
+                
+                // End Animation
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 100); 
+            }, 300);
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
